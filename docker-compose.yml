@@ -1,19 +1,17 @@
 services:
-
   db:
-    image: postgres
+    image: cr.yandex/mirror/postgres
     restart: always
     environment:
       POSTGRES_DB: "investing"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
-
     ports:
       - "5432:5432"
     volumes:
         - ./:/app
 
   redis:
-    image: redis
+    image: cr.yandex/mirror/redis
     ports:
       - "6379:6379"

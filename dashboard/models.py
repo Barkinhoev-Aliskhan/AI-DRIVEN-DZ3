@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Share(models.Model):
-    """Акция"""
+    """Акция."""
 
     figi = models.CharField(max_length=255, unique=True)
     isin = models.CharField(max_length=255)
@@ -11,11 +11,12 @@ class Share(models.Model):
     currency = models.CharField(max_length=20, verbose_name="Валюта")
     uid = models.CharField(max_length=255, unique=True)
     last_price = models.FloatField(blank=True, null=True, verbose_name="Текущая цена")
-    is_trend_high = models.BooleanField(
-        blank=True, null=True, verbose_name="Растет цена"
-    )
+    is_trend_high = models.BooleanField(blank=True, null=True, verbose_name="Растет цена")
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:
         verbose_name = "Акция"
         verbose_name_plural = "Акции"
+
+    def __str__(self) -> str:
+        return f"{self.ticker} ({self.name})"

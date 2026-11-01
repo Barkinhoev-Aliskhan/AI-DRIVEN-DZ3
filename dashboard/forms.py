@@ -4,8 +4,17 @@ from .models import Share
 
 
 class ShareModelForm(forms.ModelForm):
-    """Инструмент"""
+    """Форма инструмента."""
 
     class Meta:
         model = Share
-        fields = "__all__"
+        fields = (
+            "figi",
+            "isin",
+            "name",
+            "ticker",
+            "currency",
+            "uid",
+            "last_price",
+            "is_trend_high",
+        )

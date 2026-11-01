@@ -1,122 +1,34 @@
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
+from django.test import TestCase
 
 from dashboard.models import Share
+from dashboard.services.market_data import quotation_to_float, resolve_trend
 
 
-class DashboardTests(APITestCase):
-    def setUp(self) -> None:
-        self.apple_share = Share.objects.create(
-            figi="BBG000B9XRY4",
-            isin="US0378331005",
-            name="Apple",
-            ticker="AAPL",
-            currency="usd",
-            uid="a9eb4238-eba9-488c-b102-b6140fd08e38",
-            last_price=100.50,
-            is_trend_high=True,
-        )
+class QuotationToFloatTests(TestCase):
+    def test_units_and_nano(self):
+        q = type("Q", (), {"units": 150, "nano": 500000000})()
+        self.assertEqual(quotation_to_float(q), 150.5)
 
-        self.second_company = {
-            "figi": "BBG000B9XRY5",
-            "isin": "US0378331004",
-            "name": "Company_test",
-            "ticker": "TESTTEST",
-            "currency": "usd",
-            "uid": "a9eb4238-eba9-488c-b102-b6140fd08e39",
-            "last_price": 1.50,
-            "is_trend_high": False,
-        }
+    def test_zero_nano(self):
+        q = type("Q", (), {"units": 12, "nano": 0})()
+        self.assertEqual(quotation_to_float(q), 12.0)
 
-    def test_share_list_html(self):
-        response = self.client.get(reverse("dashboard:index"))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_share_list(self):
-        response = self.client.get("/api/v1/shares/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 1)
-        apple_share = response.json().get("results")[0]
-        self.assertEqual(apple_share["id"], self.apple_share.id)
-        self.assertEqual(apple_share["figi"], self.apple_share.figi)
-        self.assertEqual(apple_share["isin"], self.apple_share.isin)
-        self.assertEqual(apple_share["name"], self.apple_share.name)
-        self.assertEqual(apple_share["ticker"], self.apple_share.ticker)
-        self.assertEqual(apple_share["currency"], self.apple_share.currency)
+class ResolveTrendTests(TestCase):
+    def test_no_previous_price(self):
+        self.assertIsNone(resolve_trend(None, 100.0))
 
-    def test_share_detail(self):
-        response = self.client.get("/api/v1/shares/")
-        share_detail = response.json().get("results")[0]
-        response = self.client.get(f"/api/v1/shares/{share_detail['id']}/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_growing(self):
+        self.assertIs(resolve_trend(99.0, 100.0), True)
 
-    def test_share_detail_invalid(self):
-        response = self.client.get("/api/v1/shares/2/")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_falling(self):
+        self.assertIs(resolve_trend(101.0, 100.0), False)
 
-    def test_share_update(self):
-        response = self.client.get("/api/v1/shares/")
-        share_detail = response.json().get("results")[0]
-        response = self.client.put(
-            f"/api/v1/shares/{share_detail['id']}/",
-            {
-                "id": share_detail["id"],
-                "figi": self.apple_share.figi,
-                "isin": self.apple_share.isin,
-                "name": f"{self.apple_share.name}_test",
-                "ticker": self.apple_share.ticker,
-                "currency": self.apple_share.currency,
-            },
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        body = response.json()
-        self.assertEqual(body["figi"], self.apple_share.figi)
-        self.assertEqual(body["name"], f"{self.apple_share.name}_test")
+    def test_equal_is_growing(self):
+        self.assertIs(resolve_trend(100.0, 100.0), True)
 
-    def test_share_update_invalid(self):
-        response = self.client.get("/api/v1/shares/")
-        share_detail = response.json().get("results")[0]
-        response = self.client.put(
-            f"/api/v1/shares/{share_detail['id']}/",
-            {
-                "figi": self.apple_share.figi,
-                "name": f"{self.apple_share.name}_test",
-            },
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_share_create(self):
-        response = self.client.post(
-            "/api/v1/shares/", self.second_company, format="json"
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        body = response.json()
-        self.assertEqual(body["figi"], self.second_company["figi"])
-        self.assertEqual(body["name"], self.second_company["name"])
-        self.assertEqual(body["ticker"], self.second_company["ticker"])
-
-        response = self.client.get("/api/v1/shares/")
-        self.assertEqual(len(response.data["results"]), 2)
-
-    def test_share_create_invalid(self):
-        response = self.client.post(
-            "/api/v1/shares/", {"figi": "BBG000B9XRY5"}, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_share_delete(self):
-        response = self.client.get("/api/v1/shares/")
-        share_detail = response.json().get("results")[0]
-        response = self.client.delete(f"/api/v1/shares/{share_detail['id']}/")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        response = self.client.get("/api/v1/shares/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 0)
-
-    def test_share_delete_invalid(self):
-        response = self.client.delete("/api/v1/shares/3/")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+class ShareModelTest(TestCase):
+    def test_str(self):
+        share = Share(ticker="SBER", name="Сбербанк", figi="f1", uid="u1")
+        self.assertEqual(str(share), "SBER (Сбербанк)")

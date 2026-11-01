@@ -1,23 +1,33 @@
-# investing
+# Investing Dashboard
 
-# PostgreSQL (Docker)
-docker-compose -f docker-compose.yml up
+Дашборд акций на Django + Tinkoff Invest API.
 
-# Tinkoff Invest API
-# TINKOFF_TOKEN указывается в config/settings.py
+## Запуск
 
-# Первоначальная загрузка списка акций
-python manage.py add_shares
+```bash
+docker-compose up -d                      # PostgreSQL + Redis
 
-# Celery Beat
-celery -A config beat
+python3 -m venv venv
+source venv/bin/activate                  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-# Celery Worker
+cp .env.example .env                      # впиши TINKOFF_TOKEN
+
+python manage.py migrate
+python manage.py add_shares               # первичная загрузка акций
+python manage.py runserver                # http://127.0.0.1:8000
+```
+
+В отдельных терминалах (после активации venv):
+
+```bash
 celery -A config worker -l info
+celery -A config beat -l info
+```
 
-# Celery Worker для Windows (Eventlet)
-pip install eventlet cryptography
-celery -A config worker -l info -P eventlet
+## Проверка
 
-# API
-# /api/v1/shares — работа с акциями
+```bash
+python manage.py check
+python manage.py test dashboard
+```
