@@ -17,3 +17,4 @@ class ShareAdmin(admin.ModelAdmin):
         "last_price",
         "is_trend_high",
     )
+    readonly_fields = ("updated_at",)

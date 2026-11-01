@@ -1,5 +1,8 @@
-from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-from .router import router
+from dashboard.api.v1.viewsets import ShareViewSet
 
-urlpatterns = [path("", include(router.urls))]
+router = DefaultRouter()
+router.register("shares", ShareViewSet, basename="share")
+
+urlpatterns = router.urls
