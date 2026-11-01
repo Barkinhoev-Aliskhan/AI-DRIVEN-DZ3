@@ -20,5 +20,3 @@ class Command(BaseCommand):
                     currency=share.currency,
                     uid=share.uid,
                 )
-
-
