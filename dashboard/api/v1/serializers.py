@@ -1,3 +1,13 @@
-from dashboard.serializers import ShareSerializer
+"""Совместимость со старыми путями импорта сериализаторов."""
 
-__all__ = ("ShareSerializer",)
+from dashboard.serializers import (  # noqa: F401
+    NotificationSerializer,
+    PortfolioOperationSerializer,
+    PortfolioSerializer,
+    PriceAlertSerializer,
+    PriceHistorySerializer,
+    ShareSerializer,
+    StrategySerializer,
+    StrategyTradeSerializer,
+    WatchlistItemSerializer,
+)

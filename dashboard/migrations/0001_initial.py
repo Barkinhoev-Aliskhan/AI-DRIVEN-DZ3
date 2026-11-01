@@ -2,6 +2,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+
     initial = True
 
     dependencies = []
@@ -10,42 +11,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Share",
             fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("figi", models.CharField(max_length=255, unique=True)),
                 ("isin", models.CharField(max_length=255)),
-                (
-                    "name",
-                    models.CharField(max_length=255, verbose_name="Наименование компании"),
-                ),
-                (
-                    "ticker",
-                    models.CharField(max_length=10, unique=True, verbose_name="Тикер"),
-                ),
-                (
-                    "currency",
-                    models.CharField(max_length=20, verbose_name="Валюта"),
-                ),
+                ("name", models.CharField(max_length=255, verbose_name="Наименование компании")),
+                ("ticker", models.CharField(max_length=10, unique=True, verbose_name="Тикер")),
+                ("currency", models.CharField(max_length=20, verbose_name="Валюта")),
                 ("uid", models.CharField(max_length=255, unique=True)),
-                (
-                    "last_price",
-                    models.FloatField(blank=True, null=True, verbose_name="Текущая цена"),
-                ),
-                (
-                    "is_trend_high",
-                    models.BooleanField(blank=True, null=True, verbose_name="Растет цена"),
-                ),
-                (
-                    "updated_at",
-                    models.DateTimeField(auto_now=True, blank=True, null=True),
-                ),
+                ("last_price", models.FloatField(blank=True, null=True, verbose_name="Текущая цена")),
+                ("is_trend_high", models.BooleanField(blank=True, null=True, verbose_name="Растет цена")),
+                ("updated_at", models.DateTimeField(auto_now=True, blank=True, null=True)),
             ],
             options={
                 "verbose_name": "Акция",

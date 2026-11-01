@@ -10,9 +10,10 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 app.autodiscover_tasks()
 
+# Регулярное обновление цен: раз в 5 минут (согласовано с README).
 app.conf.beat_schedule = {
     "update-prices-every-5-min": {
         "task": "dashboard.tasks.update_last_price",
-        "schedule": 300.0,  # 5 минут; раньше стояло 10.0 — противоречие с README и именем задачи
+        "schedule": 300.0,
     },
 }

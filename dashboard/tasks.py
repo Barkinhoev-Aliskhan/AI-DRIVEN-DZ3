@@ -1,33 +1,39 @@
+"""Регламентные задачи Celery."""
+
+from dashboard.models import PriceHistory, Share
+from dashboard.services import monitoring_service
+from dashboard.services.market_data import get_last_data
 from config.celery import app
 from config.settings import logger
-from dashboard.models import Share
-from dashboard.services.market_data import get_last_data
 
 
 @app.task
 def update_last_price():
-    """Обновляет last_price и is_trend_high для всех акций.
-
-    Дефекты исходной версии, исправленные здесь:
-    1) сравнение с None (первый запуск) падало с TypeError, после чего
-       флаг безусловно ставился в True — теперь при отсутствии старой цены
-       флаг остаётся None (тренд неизвестен);
-    2) при ошибке получения цены запись больше не трогается вообще,
-       а не перезаписывается ложным значением флага.
-    """
+    """Обновляет цены акций, пишет историю цен, проверяет алерты и стратегии."""
     for share in Share.objects.all():
         try:
-            last_price, _received_at = get_last_data(share)
-        except Exception as e:  # noqa: BLE001 — сеть/API могут дать любую ошибку
-            logger.error(f"Не удалось получить цену для {share.ticker}: {e}")
+            last_price, price_time = get_last_data(share)
+        except Exception as error:
+            logger.error(
+                "Не удалось получить цену для %s: %s", share.ticker, error
+            )
             continue
 
-        old_price = share.last_price
-        if old_price is None:
-            is_trend_high = None
-        else:
-            is_trend_high = last_price > old_price
+        previous_price = share.last_price
+        is_trend_high = monitoring_service.compute_trend(previous_price, last_price)
 
         Share.objects.filter(id=share.id).update(
-            last_price=last_price, is_trend_high=is_trend_high
+            last_price=last_price,
+            is_trend_high=is_trend_high,
+            updated_at=price_time,
         )
+
+        PriceHistory.objects.create(share=share, price=last_price)
+
+        try:
+            monitoring_service.check_alerts_for_share(share, last_price)
+            monitoring_service.run_strategies_for_share(share, last_price)
+        except Exception as error:
+            logger.error(
+                "Ошибка обработки мониторинга для %s: %s", share.ticker, error
+            )
