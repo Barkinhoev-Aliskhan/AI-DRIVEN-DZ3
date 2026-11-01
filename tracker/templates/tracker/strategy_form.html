@@ -1,0 +1,19 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>Новая стратегия</title>{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <h5>Новая стратегия</h5>
+        <p class="text-muted small">Одна стратегия — одно действие: покупка при цене ≤ триггера или продажа при цене ≥ триггера.</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="w-100 btn btn-lg btn-primary mt-3">Создать</button>
+        </form>
+    </div>
+    <div class="col-4"></div>
+</div>
+{% endblock %}

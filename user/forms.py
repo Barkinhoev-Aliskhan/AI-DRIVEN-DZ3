@@ -42,7 +42,10 @@ class RegistrationForm(forms.Form):
             return cleaned
 
         if password1:
-            validate_password(password1)
+            try:
+                validate_password(password1)
+            except ValidationError as e:
+                self.add_error("password1", e)
 
         if email:
             if User.objects.filter(username__iexact=email).exists() or User.objects.filter(
@@ -57,7 +60,7 @@ class RegistrationForm(forms.Form):
     def save(self):
         email = self.cleaned_data["email"]
         password = self.cleaned_data["password1"]
-        user = User.objects.create_user(email, email, password)
+        User.objects.create_user(email, email, password)
         return authenticate(username=email, password=password)
 
 

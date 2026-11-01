@@ -1,0 +1,33 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>Мониторинг</title>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h5>Мониторинг акций</h5>
+    <a href="{% url 'tracker:watch_create' %}" class="btn btn-primary">Добавить наблюдение</a>
+</div>
+
+{% if watch_list %}
+<table class="table table-striped mt-3">
+    <thead><tr>
+        <th>Акция</th><th>Текущая цена</th><th>Условие</th><th>Статус</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for item in watch_list %}
+        <tr>
+            <td>{{ item.share.ticker }} — {{ item.share.name }}</td>
+            <td>{% if item.share.last_price %}{{ item.share.last_price }} {{ item.share.currency }}{% else %}—{% endif %}</td>
+            <td>{% if item.direction == 'above' %}выше{% else %}ниже{% endif %} {{ item.target_price }}</td>
+            <td>{% if item.is_active %}<span class="badge bg-success">активно</span>{% else %}<span class="badge bg-secondary">сработало</span>{% endif %}</td>
+            <td>
+                <a href="{% url 'tracker:watch_delete' item.pk %}" class="btn btn-sm btn-danger">Удалить</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Наблюдений пока нет. Добавьте первое — уведомление придёт, когда цена пересечёт целевой уровень.</p>
+{% endif %}
+{% endblock %}

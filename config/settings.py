@@ -1,4 +1,3 @@
-import logging
 import os
 from pathlib import Path
 
@@ -26,6 +25,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "dashboard",
+    "tracker",
     "user",
 ]
 
@@ -37,30 +37,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "main_format": {
-            "format": "[{module} {asctime} {levelname}] {message}",
-            "style": "{",
-        }
-    },
-    "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "main_format"},
-        "file": {
-            "class": "logging.FileHandler",
-            "formatter": "main_format",
-            "filename": str(BASE_DIR / "app.logs"),
-        },
-    },
-    "loggers": {
-        "main": {"handlers": ["console", "file"], "level": "INFO", "propagate": True}
-    },
-}
-
-logger = logging.getLogger("main")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -85,6 +61,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "tracker.context_processors.unread_notifications",
             ],
         },
     },

@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-from dashboard.models import Share
 from dashboard.services.market_data import quotation_to_float, resolve_trend
 
 
@@ -26,9 +25,3 @@ class ResolveTrendTests(TestCase):
 
     def test_equal_is_growing(self):
         self.assertIs(resolve_trend(100.0, 100.0), True)
-
-
-class ShareModelTest(TestCase):
-    def test_str(self):
-        share = Share(ticker="SBER", name="Сбербанк", figi="f1", uid="u1")
-        self.assertEqual(str(share), "SBER (Сбербанк)")

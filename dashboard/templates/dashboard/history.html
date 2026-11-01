@@ -1,0 +1,71 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}
+<title>История цен</title>
+{% endblock %}
+
+{% block content %}
+<h5>История изменения цен</h5>
+<form method="get">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label">Акция</label>
+            <select name="share" class="form-select">
+                <option value="">— выберите —</option>
+                {% for s in shares %}
+                    <option value="{{ s.id }}" {% if s.id == selected_share_id %}selected{% endif %}>
+                        {{ s.ticker }} — {{ s.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Период</label>
+            <select name="period" class="form-select">
+                <option value="7" {% if period == 7 %}selected{% endif %}>7 дней</option>
+                <option value="30" {% if period == 30 %}selected{% endif %}>30 дней</option>
+                <option value="90" {% if period == 90 %}selected{% endif %}>90 дней</option>
+                <option value="180" {% if period == 180 %}selected{% endif %}>180 дней</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Показать</button>
+        </div>
+    </div>
+</form>
+
+{% if change %}
+    <p class="mt-3">
+        Изменение за период: {{ change.absolute|floatformat:2 }}
+        {% if change.percent is None %}
+            (процентное изменение не определено — первая цена нулевая)
+        {% else %}
+            ({{ change.percent|floatformat:2 }}%)
+        {% endif %}
+    </p>
+{% endif %}
+
+{% if plot_div %}
+    {% autoescape off %}
+        {{ plot_div }}
+    {% endautoescape %}
+{% endif %}
+
+{% if history %}
+    <table class="table table-striped">
+        <thead><tr><th scope="col">Время</th><th scope="col">Цена</th></tr></thead>
+        <tbody>
+        {% for h in history %}
+            <tr>
+                <td>{{ h.recorded_at }}</td>
+                <td>{{ h.price|floatformat:2 }} {{ h.share.currency }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% elif selected_share_id %}
+    <p>Записей за выбранный период нет — дождитесь обновления цен фоновым заданием.</p>
+{% else %}
+    <p>Выберите акцию, чтобы посмотреть историю.</p>
+{% endif %}
+{% endblock %}

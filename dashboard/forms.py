@@ -8,13 +8,4 @@ class ShareModelForm(forms.ModelForm):
 
     class Meta:
         model = Share
-        fields = (
-            "figi",
-            "isin",
-            "name",
-            "ticker",
-            "currency",
-            "uid",
-            "last_price",
-            "is_trend_high",
-        )
+        fields = ("figi", "isin", "name", "ticker", "currency", "uid", "last_price", "is_trend_high")

@@ -1,0 +1,18 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>Новая операция</title>{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <h5>Новая операция в «{{ portfolio.name }}»</h5>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="w-100 btn btn-lg btn-primary mt-3">Сохранить</button>
+        </form>
+    </div>
+    <div class="col-4"></div>
+</div>
+{% endblock %}

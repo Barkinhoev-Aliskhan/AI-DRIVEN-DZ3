@@ -1,20 +1,14 @@
-from django.urls import include, path
+from django.urls import path
 
-from dashboard.views import (
-    ShareCreateView,
-    ShareDeleteView,
-    ShareDetailView,
-    ShareListView,
-    ShareUpdateView,
-)
+from . import views
 
 app_name = "dashboard"
 
 urlpatterns = [
-    path("", ShareListView.as_view(), name="index"),
-    path("<int:pk>", ShareDetailView.as_view(), name="detail"),
-    path("create", ShareCreateView.as_view(), name="create"),
-    path("update/<int:pk>", ShareUpdateView.as_view(), name="update"),
-    path("delete/<int:pk>", ShareDeleteView.as_view(), name="delete"),
-    path("api/", include("dashboard.api.urls")),
+    path("", views.ShareListView.as_view(), name="index"),
+    path("shares/<int:pk>/", views.ShareDetailView.as_view(), name="detail"),
+    path("shares/create/", views.ShareCreateView.as_view(), name="create"),
+    path("shares/<int:pk>/update/", views.ShareUpdateView.as_view(), name="update"),
+    path("shares/<int:pk>/delete/", views.ShareDeleteView.as_view(), name="delete"),
+    path("history/", views.PriceHistoryView.as_view(), name="history"),
 ]

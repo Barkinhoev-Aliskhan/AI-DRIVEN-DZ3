@@ -11,11 +11,7 @@ def quotation_to_float(quotation) -> float:
 
 
 def resolve_trend(previous_price, new_price):
-    """Определяет направление изменения цены.
-
-    Возвращает None, если предыдущей цены нет (тренд неизвестен),
-    иначе True (цена не упала) или False (цена упала).
-    """
+    """None, если предыдущей цены нет; иначе True (не упала) / False (упала)."""
     if previous_price is None:
         return None
     return new_price >= previous_price

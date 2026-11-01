@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}<title>Уведомления</title>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h5>Уведомления</h5>
+    <form method="post" action="{% url 'tracker:notifications_read_all' %}">
+        {% csrf_token %}
+        <button class="btn btn-outline-primary">Отметить все прочитанными</button>
+    </form>
+</div>
+
+{% if notification_list %}
+<ul class="list-group mt-3">
+    {% for n in notification_list %}
+        <li class="list-group-item {% if not n.is_read %}fw-bold{% endif %}">
+            {{ n.message }}
+            <div class="text-muted small">{{ n.created_at }} · {{ n.watch_item.share.ticker }}</div>
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Уведомлений пока нет.</p>
+{% endif %}
+{% endblock %}
